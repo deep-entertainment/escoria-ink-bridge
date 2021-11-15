@@ -1,0 +1,41 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://addons/escoria-core/game/core-scripts/esc_player.gd" type="Script" id=1]
+[ext_resource path="res://addons/escoria-core/game/core-scripts/resources/esc_directionangle.gd" type="Script" id=2]
+[ext_resource path="res://addons/escoria-core/game/core-scripts/resources/esc_animationresource.gd" type="Script" id=3]
+[ext_resource path="res://addons/escoria-core/game/core-scripts/esc_location.gd" type="Script" id=4]
+
+[sub_resource type="Resource" id=1]
+script = ExtResource( 2 )
+angle_start = 0
+angle_size = 360
+
+[sub_resource type="Resource" id=2]
+script = ExtResource( 3 )
+dir_angles = [ SubResource( 1 ) ]
+directions = [  ]
+idles = [  ]
+speaks = [  ]
+
+[sub_resource type="RectangleShape2D" id=3]
+extents = Vector2( 39.67, 25.4551 )
+
+[node name="ESCPlayer" type="Area2D"]
+pause_mode = 1
+script = ExtResource( 1 )
+global_id = "brianna"
+is_movable = true
+dialog_color = Color( 1, 1, 1, 1 )
+animations = SubResource( 2 )
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+scale = Vector2( -1, 1 )
+polygon = PoolVector2Array( -27.6832, -23.7169, 34.021, -14.1571, -17.6889, -2.4246, 18.3777, 14.0878, -26.8142, 14.5223 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2( 0.86908, -3.4763 )
+shape = SubResource( 3 )
+
+[node name="dialog_position" type="Position2D" parent="."]
+position = Vector2( 24.3341, 36.9356 )
+script = ExtResource( 4 )

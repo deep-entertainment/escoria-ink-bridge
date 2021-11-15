@@ -1,0 +1,7 @@
+:init
+
+show_menu main
+
+:newgame
+
+change_scene res://rooms/testroom/testroom.tscn

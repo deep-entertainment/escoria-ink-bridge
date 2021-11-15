@@ -1,0 +1,53 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://addons/escoria-core/game/core-scripts/esc_room.gd" type="Script" id=1]
+[ext_resource path="res://addons/escoria-core/game/core-scripts/esc_item.gd" type="Script" id=2]
+[ext_resource path="res://addons/escoria-core/game/core-scripts/esc_background.gd" type="Script" id=3]
+[ext_resource path="res://characters/testcharacter/testcharacter.tscn" type="PackedScene" id=4]
+[ext_resource path="res://addons/escoria-core/game/core-scripts/esc_location.gd" type="Script" id=5]
+[ext_resource path="res://characters/testcharacter/testcharacter2.tscn" type="PackedScene" id=6]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 40.9743, 27.193 )
+
+[node name="ESCRoom" type="Node2D"]
+script = ExtResource( 1 )
+global_id = "testroom"
+esc_script = "res://rooms/testroom/testroom.esc"
+player_scene = ExtResource( 4 )
+camera_limits = [ Rect2( 0, 0, 1024, 600 ) ]
+
+[node name="ESCBackground" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ESCItem" type="Area2D" parent="."]
+pause_mode = 1
+script = ExtResource( 2 )
+global_id = "button"
+esc_script = "res://rooms/testroom/button.esc"
+player_orients_on_arrival = false
+tooltip_name = "button"
+default_action = "use"
+dialog_color = Color( 1, 1, 1, 1 )
+animations = null
+
+[node name="Polygon2D" type="Polygon2D" parent="ESCItem"]
+polygon = PoolVector2Array( 176.985, 98.8231, 239.993, 98.8231, 246.076, 142.277, 178.288, 140.539 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ESCItem"]
+position = Vector2( 215.531, 120.802 )
+shape = SubResource( 1 )
+
+[node name="ESCLocation" type="Position2D" parent="."]
+position = Vector2( 122.974, 150.35 )
+script = ExtResource( 5 )
+is_start_location = true
+
+[node name="ESCPlayer" parent="." instance=ExtResource( 6 )]
+position = Vector2( 347.63, 193.803 )
