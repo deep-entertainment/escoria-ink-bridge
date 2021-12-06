@@ -6,6 +6,12 @@ This addon for [Godot](https://godotengine.org) adds support for playing
 [Ink](https://www.inklestudios.com/ink/) scripts in 
 [Escoria](https://github.com/godot-escoria) adventure game framework.
 
+Ink was created by [Inkle Studios](https://www.inklestudios.com). This addon
+is not affiliated with Inkle Studios at all.
+
+Please use the [deep entertainment issue tracker](https://github.com/deep-entertainment/issues/issues)
+if you encounter any problems or require features.
+
 ## Installation
 
 Install the addon using the Godot asset library and activate it in the
