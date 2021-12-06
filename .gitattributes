@@ -13,6 +13,7 @@
 /characters                    export-ignore
 /rooms                         export-ignore
 /start_game.esc                export-ignore
+/LICENSE.md                    export-ignore
 /test.ink                      export-ignore
 /test.ink.json                 export-ignore
 /.inkgd_ink.cfg                export-ignore
