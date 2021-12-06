@@ -44,18 +44,18 @@ func _init(command_string):
 				for parameter in parsed_parameters.split(" "):
 					if parameter.begins_with('"') and parameter.ends_with('"'):
 						parameters.append(
-							parameter.substr(1, parameter.length() - 2)
+							parameter
 						)
 					elif ":" in parameter and '"' in parameter:
 						quote_open = true
-						parameter_values.append(parameter.replace('"', ''))
+						parameter_values.append(parameter)
 					elif parameter.begins_with('"'):
 						quote_open = true
-						parameter_values.append(parameter.substr(1))
+						parameter_values.append(parameter)
 					elif parameter.ends_with('"'):
 						quote_open = false
 						parameter_values.append(
-							parameter.substr(0, len(parameter) - 1)
+							parameter.substr(0, len(parameter))
 						)
 						parameters.append(parameter_values.join(" "))
 						parameter_values.resize(0)
@@ -82,16 +82,7 @@ func _init(command_string):
 
 # Check, if conditions match
 func is_valid() -> bool:
-	var command_found = false
-	for base_path in ProjectSettings.get("escoria/main/command_directories"):
-		var command_path = "%s/%s.gd" % [
-			base_path.trim_suffix("/"),
-			self.name
-		]
-		if ResourceLoader.exists(command_path):
-			command_found = true
-			
-	if not command_found:
+	if not command_exists():
 		escoria.logger.report_errors(
 			"Invalid command detected: %s" % self.name,
 			[
@@ -101,7 +92,22 @@ func is_valid() -> bool:
 		return false
 			
 	return .is_valid()
-	
+
+
+# Checks that the command exists
+#
+# *Returns* True if the command exists, else false.
+func command_exists() -> bool:
+	var command_found = false
+	for base_path in ProjectSettings.get("escoria/main/command_directories"):
+		var command_path = "%s/%s.gd" % [
+			base_path.trim_suffix("/"),
+			self.name
+		]
+		if ResourceLoader.exists(command_path):
+			command_found = true
+	return command_found
+
 
 # Run this command
 func run() -> int:

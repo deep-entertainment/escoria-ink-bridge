@@ -1,6 +1,12 @@
-# `teleport_pos object1 x y`
+# `teleport_pos object x y`
 #
-# Sets the position of object1 to the position (x,y).
+# Instantly moves an object to the specified position
+#
+# **Parameters**
+#
+# - *object*: Global ID of the object to move
+# - *x*: X-coordinate of destination position
+# - *y*: Y-coordinate of destination position
 #
 # @ESC
 extends ESCBaseCommand
@@ -31,6 +37,7 @@ func validate(arguments: Array):
 
 # Run the command
 func run(command_params: Array) -> int:
-	(escoria.object_manager.get_object(command_params[0]).node as ESCPlayer)\
-		.teleport_to(Vector2(int(command_params[1]), int(command_params[2])))
+	escoria.object_manager.get_object(command_params[0]).node.teleport_to(
+		Vector2(int(command_params[1]), int(command_params[2]))
+	)
 	return ESCExecution.RC_OK

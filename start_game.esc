@@ -1,6 +1,8 @@
 :init
 
 show_menu main
+set_global current_name Sarah
+set_global x test
 
 :newgame
 

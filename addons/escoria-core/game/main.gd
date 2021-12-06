@@ -40,11 +40,9 @@ func set_scene(p_scene: Node) -> void:
 	if current_scene != null:
 		clear_scene()
 
-	if p_scene.is_inside_tree() and p_scene.get_parent() != self:
-		p_scene.get_parent().remove_child(p_scene)
-
-	add_child(p_scene) 
-	move_child(p_scene, 0)
+	if not p_scene.is_inside_tree():
+		add_child(p_scene) 
+		move_child(p_scene, 0)
 	current_scene = p_scene
 	check_game_scene_methods()
 
@@ -63,9 +61,10 @@ func clear_scene() -> void:
 	
 	if escoria.game_scene.get_parent() == current_scene:
 		current_scene.remove_child(escoria.game_scene)
-
+		
 	current_scene.get_parent().remove_child(current_scene)
-	current_scene.free()
+	
+	current_scene.queue_free()
 	current_scene = null
 
 
@@ -93,9 +92,11 @@ func set_camera_limits(camera_limit_id: int = 0) -> void:
 		# to stick centered on the background
 		if area.size.x == 0 or area.size.y == 0 \
 				or area.size < get_viewport().size:
-			escoria.logger.report_warning(
-				"main.gd:set_camera_limits()", 
-				"No limit area! Using viewport."
+			escoria.logger.report_warnings(
+				"main.gd:set_camera_limits()",
+				[
+					"No limit area! Using viewport."
+				]
 			)
 			area.size = get_viewport().size
 

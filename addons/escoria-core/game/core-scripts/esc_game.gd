@@ -5,6 +5,10 @@ extends Node2D
 class_name ESCGame
 
 
+# Emitted when the user has confirmed the crash popup
+signal crash_popup_confirmed
+
+
 # Editor debug modes
 # NONE - No debugging
 # MOUSE_TOOLTIP_LIMITS - Visualize the tooltip limits
@@ -35,7 +39,8 @@ var tooltip_node: Object
 # Ready function
 func _ready():
 	escoria.apply_settings(escoria.settings)
-	
+	connect("crash_popup_confirmed", escoria, "quit", 
+		[], CONNECT_ONESHOT)
 
 # Handle debugging visualizations
 func _draw():
@@ -251,34 +256,6 @@ func show_ui():
 	pass
 
 
-# Function is called if Project setting escoria/ui/tooltip_follows_mouse = true
-#
-# #### Parameters
-#
-# - p_position: Position of the mouse
-func update_tooltip_following_mouse_position(p_position: Vector2):
-	var corrected_position = p_position
-	
-	# clamp TOP
-	if tooltip_node.tooltip_distance_to_edge_top(p_position) <= mouse_tooltip_margin:
-		corrected_position.y = mouse_tooltip_margin
-	
-	# clamp BOTTOM
-	if tooltip_node.tooltip_distance_to_edge_bottom(p_position + tooltip_node.rect_size) <= mouse_tooltip_margin:
-		corrected_position.y = escoria.game_size.y - mouse_tooltip_margin - tooltip_node.rect_size.y
-	
-	# clamp LEFT
-	if tooltip_node.tooltip_distance_to_edge_left(p_position - tooltip_node.rect_size/2) <= mouse_tooltip_margin:
-		corrected_position.x = mouse_tooltip_margin
-
-	# clamp RIGHT
-	if tooltip_node.tooltip_distance_to_edge_right(p_position + tooltip_node.rect_size/2) <= mouse_tooltip_margin:
-		corrected_position.x = escoria.game_size.x - mouse_tooltip_margin - tooltip_node.rect_size.x
-	
-	tooltip_node.anchor_right = 0.2
-	tooltip_node.rect_position = corrected_position + tooltip_node.offset_from_cursor
-
-
 # Set the Editor debug mode
 func _set_editor_debug_mode(p_editor_debug_mode: int) -> void:
 	editor_debug_mode = p_editor_debug_mode
@@ -287,12 +264,12 @@ func _set_editor_debug_mode(p_editor_debug_mode: int) -> void:
 
 # Pauses the game. Reimplement to eventually show a specific UI.
 func pause_game():
-	pass
+	escoria.set_game_paused(true)
 
 
 # Unpause the game. Reimplement to eventually hide a specific UI.
 func unpause_game():
-	pass
+	escoria.set_game_paused(false)
 
 
 # Shows the main menu. Reimplement to show a specific UI.
@@ -303,3 +280,26 @@ func show_main_menu():
 # Hides the main menu. Reimplement to hide a specific UI.
 func hide_main_menu():
 	pass
+
+
+# Shows the crash popup when a crash occurs
+#
+# #### Parameters
+#
+# - files: Array of strings containing the paths to the files generated on crash
+func show_crash_popup(files: Array = []) -> void:
+	var crash_popup = AcceptDialog.new()
+	crash_popup.popup_exclusive = true
+	crash_popup.pause_mode = Node.PAUSE_MODE_PROCESS
+	add_child(crash_popup)
+	var files_to_send: String = ""
+	for file in files:
+		files_to_send += "- %s\n" % file
+	crash_popup.dialog_text = tr(ProjectSettings.get_setting(
+		"escoria/debug/crash_message")
+	) % files_to_send
+	crash_popup.popup_centered()
+	escoria.set_game_paused(true)
+	yield(crash_popup, "confirmed")
+	emit_signal("crash_popup_confirmed")
+

@@ -34,7 +34,7 @@ func perform_walk(
 			if destination.node is ESCLocation:
 				target_position = destination.node.global_position
 			else:
-				target_position = destination.node.interact_position
+				target_position = destination.node.get_interact_position()
 				
 			var walk_context = ESCWalkContext.new(
 				destination, 
@@ -127,55 +127,13 @@ func perform_inputevent_on_object(
 		var player_global_pos = escoria.main.current_scene.player.global_position
 		var clicked_position = event.position
 	
-		if not player_global_pos == destination_position:
+		if not player_global_pos.is_equal_approx(destination_position):
 			dont_interact = true
 	
 	# If no interaction should happen after player has arrived, leave 
 	# immediately.
 	if dont_interact:
 		return
-	
-	# If NO_TT flag is active, hide tooltip and connect for
-	# event finished to show it back
-	if event_flags & ESCEvent.FLAG_NO_TT \
-		and not escoria.event_manager.is_connected(
-			"event_finished", 
-			self,
-			"_on_no_tooltip_event_finished"
-		):
-		escoria.main.current_scene.game.tooltip_node.hide()
-		escoria.event_manager.connect(
-			"event_finished", 
-			self,
-			"_on_no_tooltip_event_finished"
-		)
-	
-	if event_flags & ESCEvent.FLAG_NO_UI and \
-		not escoria.event_manager.is_connected(
-			"event_finished", 
-			self,
-			"_on_no_ui_event_finished"
-		):
-		escoria.main.current_scene.game.hide_ui()
-		escoria.event_manager.connect(
-			"event_finished", 
-			self,
-			"_on_no_ui_event_finished"
-		)
-	
-	if event_flags & ESCEvent.FLAG_NO_SAVE and \
-		not escoria.event_manager.is_connected(
-			"event_finished", 
-			self,
-			"_on_no_save_event_finished"
-		):
-		escoria.save_manager.save_enabled = false
-		escoria.event_manager.connect(
-			"event_finished", 
-			self,
-			"_on_no_save_event_finished"
-		)
-		pass
 	
 	# Manage exits
 	if obj.node.is_exit and escoria.action_manager.current_action \
@@ -292,63 +250,3 @@ func _walk_towards_object(
 		walk_context.dont_interact_on_arrival = true
 	
 	return context
-
-
-# Called when an event having "NO_TT" flag is finished.
-#
-# ## Parameters
-#
-# - _return_code: The ESCExecution return code sent by the events manager.
-# - _event_name: the name of the event
-func _on_no_tooltip_event_finished(_return_code: int, _event_name: String):
-	escoria.main.current_scene.game.tooltip_node.show()
-	if escoria.event_manager.is_connected(
-			"event_finished", 
-			self,
-			"_on_no_tooltip_event_finished"
-		):
-		escoria.event_manager.disconnect(
-			"event_finished", 
-			self,
-			"_on_no_tooltip_event_finished"
-		)
-
-
-# Called when an event having "NO_UI" flag is finished.
-#
-# ## Parameters
-#
-# - _return_code: The ESCExecution return code sent by the events manager.
-# - _event_name: the name of the event
-func _on_no_ui_event_finished(_return_code: int, _event_name: String):
-	escoria.main.current_scene.game.show_ui()
-	if escoria.event_manager.is_connected(
-			"event_finished", 
-			self,
-			"_on_no_ui_event_finished"
-		):
-		escoria.event_manager.disconnect(
-			"event_finished", 
-			self,
-			"_on_no_ui_event_finished"
-		)
-
-
-# Called when an event having "NO_SAVE" flag is finished.
-#
-# ## Parameters
-#
-# - _return_code: The ESCExecution return code sent by the events manager.
-# - _event_name: the name of the event
-func _on_no_save_event_finished(_return_code: int, _event_name: String):
-	escoria.save_manager.save_enabled = true
-	if escoria.event_manager.is_connected(
-			"event_finished", 
-			self,
-			"_on_no_save_event_finished"
-		):
-		escoria.event_manager.disconnect(
-			"event_finished", 
-			self,
-			"_on_no_save_event_finished"
-		)

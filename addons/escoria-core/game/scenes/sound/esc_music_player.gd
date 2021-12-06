@@ -39,7 +39,11 @@ func set_state(p_state: String, p_force: bool = false) -> void:
 	stream.stream = resource
 
 	if stream.stream:
-		resource.set_loop(true)
+		if resource is AudioStreamSample:
+			resource.loop_mode = AudioStreamSample.LOOP_FORWARD
+			resource.loop_end = resource.mix_rate * resource.get_length()
+		elif "loop" in resource:
+			resource.loop = true
 		if ProjectSettings.has_setting("escoria/sound/music_volume"):
 			stream.volume_db = ProjectSettings.get_setting("escoria/sound/music_volume")
 		stream.play()
@@ -47,6 +51,7 @@ func set_state(p_state: String, p_force: bool = false) -> void:
 
 # Register to the object registry
 func _ready():
+	pause_mode = Node.PAUSE_MODE_STOP
 	escoria.object_manager.register_object(
 		ESCObject.new(global_id, self),
 		true

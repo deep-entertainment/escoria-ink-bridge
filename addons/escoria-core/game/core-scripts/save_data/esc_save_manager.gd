@@ -166,11 +166,49 @@ func load_game(id: int):
 	var file: File = File.new()
 	if not file.file_exists(save_file_path):
 		escoria.logger.report_errors(
-			"esc_save_data_resources.gd",
+			"esc_save_manager.gd:load_game()",
 			["Save file %s doesn't exist" % save_file_path])
 		return
 
-	var save_game: Resource = ResourceLoader.load(save_file_path)
+	escoria.logger.info(
+		"esc_save_manager.gd:load_game()",
+		["Loading savegame %s" % str(id)])
+	
+	var save_game: ESCSaveGame = ResourceLoader.load(save_file_path)
+	
+	var plugin_config = ConfigFile.new()
+	plugin_config.load("res://addons/escoria-core/plugin.cfg")
+	var escoria_version = plugin_config.get_value("plugin", "version")
+	
+	# Migrate savegame through escoria versions
+	
+	if escoria_version != save_game.escoria_version:
+		var migration_manager: ESCMigrationManager = ESCMigrationManager.new()
+		save_game = migration_manager.migrate(
+			save_game,
+			save_game.escoria_version,
+			escoria_version,
+			"res://addons/escoria-core/game/core-scripts/migrations/versions"
+		)
+		
+	# Migrate savegame through game versions
+	
+	if ProjectSettings.get_setting("escoria/main/game_version") != \
+			save_game.game_version and \
+			ProjectSettings.get_setting(
+				"escoria/main/game_migration_path"
+			) != "":
+		var migration_manager: ESCMigrationManager = ESCMigrationManager.new()
+		save_game = migration_manager.migrate(
+			save_game,
+			save_game.game_version,
+			ProjectSettings.get_setting("escoria/main/game_version"),
+			ProjectSettings.get_setting(
+				"escoria/main/game_migration_path"
+			)
+		)
+	
+	escoria.event_manager.interrupt_running_event()
 
 	var load_event = ESCEvent.new(":load")
 	var load_statements = []
@@ -181,23 +219,31 @@ func load_game(id: int):
 			[ProjectSettings.get_setting("escoria/ui/default_transition")]
 		)
 	)
+	load_statements.append(
+		ESCCommand.new("hide_menu main")
+	)
+	load_statements.append(
+		ESCCommand.new("hide_menu pause")
+	)
 	
 	## GLOBALS
 	for k in save_game.globals.keys():
-		load_statements.append(
-			ESCCommand.new("set_global %s \"%s\"\n" \
-					% [k, save_game.globals[k]])
+		escoria.globals_manager.set_global(
+			k,
+			save_game.globals[k],
+			true
 		)
-	
+		
 	## ROOM
 	load_statements.append(
-		ESCCommand.new("change_scene %s true" \
+		ESCCommand.new("change_scene %s false" \
 				% save_game.main["current_scene_filename"])
 	)
 	
 	## OBJECTS
 	for object_global_id in save_game.objects.keys():
-		if save_game.objects[object_global_id].has("active"):
+		if escoria.object_manager.has(object_global_id) and \
+				save_game.objects[object_global_id].has("active"):
 			load_statements.append(ESCCommand.new("set_active %s %s" \
 				% [object_global_id, 
 				save_game.objects[object_global_id]["active"]])
@@ -229,11 +275,23 @@ func load_game(id: int):
 				save_game.objects[object_global_id]["last_deg"]])
 			)
 		
-		if object_global_id == "_music" or object_global_id == "_sound":
-			load_statements.append(ESCCommand.new("set_sound_state %s %s true" \
-					% [object_global_id,
-				save_game.objects[object_global_id]["state"]])
-			)
+		if object_global_id in ["_music", "_sound", "_speech"]:
+			if save_game.objects[object_global_id]["state"] in [
+				"default", 
+				"off"
+			]:
+				load_statements.append(
+					ESCCommand.new("stop_snd %s" % [
+						object_global_id,
+					])
+				)
+			else:
+				load_statements.append(
+					ESCCommand.new("play_snd %s %s" % [
+						save_game.objects[object_global_id]["state"],
+						object_global_id,
+					])
+				)
 	
 	load_statements.append(
 		ESCCommand.new(
@@ -247,6 +305,9 @@ func load_game(id: int):
 	escoria.set_game_paused(false)
 	
 	escoria.event_manager.queue_event(load_event)
+	escoria.logger.debug(
+		"esc_save_manager.gd:load_game()",
+		["Load event queued."])
 	
 	
 # Save the game settings in the settings file.

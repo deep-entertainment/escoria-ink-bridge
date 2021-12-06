@@ -1,0 +1,23 @@
+# Normalize EOL for all files that Git considers text files.
+* text=auto eol=lf
+
+# Ignore some files when exporting to a ZIP.
+/.gitattributes                export-ignore
+/.gitignore                    export-ignore
+/README.md                     export-ignore
+/project.godot                 export-ignore
+/icon.png                      export-ignore
+/icon.png.import               export-ignore
+/icon.svg                      export-ignore
+/icon.svg.import               export-ignore
+/characters                    export-ignore
+/rooms                         export-ignore
+/start_game.esc                export-ignore
+/test.ink                      export-ignore
+/test.ink.json                 export-ignore
+/.inkgd_ink.cfg                export-ignore
+/.inkgd_compiler.cfg           export-ignore
+/default_env.tres              export-ignore
+/addons/escoria-core           export-ignore
+/addons/escoria-dialog-simple  export-ignore
+/addons/escoria-ui-simplemouse export-ignore

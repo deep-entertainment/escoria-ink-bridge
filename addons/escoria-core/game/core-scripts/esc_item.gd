@@ -270,9 +270,16 @@ func _ready():
 #
 # - event: Triggered event
 func _unhandled_input(event: InputEvent) -> void:
-	if not escoria.current_state == escoria.GAME_STATE.DEFAULT:
-		return
 	if event is InputEventMouseButton and event.is_pressed():
+		if not escoria.current_state == escoria.GAME_STATE.DEFAULT or \
+			not is_interactive:
+			escoria.logger.info(
+				(
+					"Item %s is not interactive or the game state doesn't " +
+					"accept interactions"
+				) % global_id
+			)
+			return
 		var p = get_global_mouse_position()
 		var mouse_in_shape: bool = false
 		var colliders = get_world_2d().direct_space_state.intersect_point(
@@ -292,10 +299,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		if mouse_in_shape:
 			if event.doubleclick and event.button_index == BUTTON_LEFT:
 				emit_signal("mouse_double_left_clicked_item", self, event)
+				get_tree().set_input_as_handled()
 			elif event.button_index == BUTTON_LEFT:
 				emit_signal("mouse_left_clicked_item", self, event)
+				get_tree().set_input_as_handled()
 			elif event.button_index == BUTTON_RIGHT:
 				emit_signal("mouse_right_clicked_item", self, event)
+				get_tree().set_input_as_handled()
 
 
 # Return the animation player node
@@ -442,7 +452,9 @@ func turn_to(object: Node, wait: float = 0.0):
 
 # Play the talking animation
 func start_talking():
-	if get_animation_player():
+	if get_animation_player() and \
+			_movable.last_dir >= 0 and \
+			_movable.last_dir <= animations.speaks.size():
 		if get_animation_player().is_playing():
 			get_animation_player().stop()
 		get_animation_player().play(
@@ -452,13 +464,21 @@ func start_talking():
 
 # Stop playing the talking animation
 func stop_talking():
-	if get_animation_player():
+	if get_animation_player() and \
+			_movable.last_dir >= 0 and \
+			_movable.last_dir <= animations.idles.size():
 		if get_animation_player().is_playing():
 			get_animation_player().stop()
 		get_animation_player().play(
 			animations.idles[_movable.last_dir].animation
 		)
 
+
+# Replay the last idle animation
+func update_idle():
+	get_animation_player().play(
+		animations.idles[_movable.last_dir].animation
+	)
 
 
 # Return the camera position if a camera_position_node exists or the

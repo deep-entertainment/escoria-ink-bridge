@@ -1,0 +1,1 @@
+See the [license in the addon folder](addons/escoria-ink-bridge/LICENSE).

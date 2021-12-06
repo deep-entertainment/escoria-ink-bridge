@@ -15,6 +15,11 @@ _global_script_classes=[ {
 "path": "res://addons/escoria-core/game/core-scripts/esc/commands/accept_input.gd"
 }, {
 "base": "ESCBaseCommand",
+"class": "AnimBlockCommand",
+"language": "GDScript",
+"path": "res://addons/escoria-core/game/core-scripts/esc/commands/anim_block.gd"
+}, {
+"base": "ESCBaseCommand",
 "class": "AnimCommand",
 "language": "GDScript",
 "path": "res://addons/escoria-core/game/core-scripts/esc/commands/anim.gd"
@@ -63,11 +68,6 @@ _global_script_classes=[ {
 "class": "CustomCommand",
 "language": "GDScript",
 "path": "res://addons/escoria-core/game/core-scripts/esc/commands/custom.gd"
-}, {
-"base": "ESCBaseCommand",
-"class": "CutSceneCommand",
-"language": "GDScript",
-"path": "res://addons/escoria-core/game/core-scripts/esc/commands/cut_scene.gd"
 }, {
 "base": "ESCBaseCommand",
 "class": "DebugCommand",
@@ -199,6 +199,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/escoria-core/game/core-scripts/esc/types/esc_execution.gd"
 }, {
+"base": "ESCItem",
+"class": "ESCExit",
+"language": "GDScript",
+"path": "res://addons/escoria-core/game/core-scripts/esc_exit.gd"
+}, {
 "base": "Node2D",
 "class": "ESCGame",
 "language": "GDScript",
@@ -259,6 +264,16 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/escoria-core/game/core-scripts/log/esc_logger.gd"
 }, {
+"base": "Object",
+"class": "ESCMigration",
+"language": "GDScript",
+"path": "res://addons/escoria-core/game/core-scripts/migrations/esc_migration.gd"
+}, {
+"base": "Object",
+"class": "ESCMigrationManager",
+"language": "GDScript",
+"path": "res://addons/escoria-core/game/core-scripts/migrations/esc_migration_manager.gd"
+}, {
 "base": "Node",
 "class": "ESCMovable",
 "language": "GDScript",
@@ -293,6 +308,11 @@ _global_script_classes=[ {
 "class": "ESCRoom",
 "language": "GDScript",
 "path": "res://addons/escoria-core/game/core-scripts/esc_room.gd"
+}, {
+"base": "Object",
+"class": "ESCRoomManager",
+"language": "GDScript",
+"path": "res://addons/escoria-core/game/core-scripts/esc/esc_room_manager.gd"
 }, {
 "base": "Resource",
 "class": "ESCSaveGame",
@@ -395,6 +415,11 @@ _global_script_classes=[ {
 "path": "res://addons/escoria-core/game/core-scripts/esc/commands/play_snd.gd"
 }, {
 "base": "ESCBaseCommand",
+"class": "QueueEventCommand",
+"language": "GDScript",
+"path": "res://addons/escoria-core/game/core-scripts/esc/commands/queue_event.gd"
+}, {
+"base": "ESCBaseCommand",
 "class": "QueueResourceCommand",
 "language": "GDScript",
 "path": "res://addons/escoria-core/game/core-scripts/esc/commands/queue_resource.gd"
@@ -445,19 +470,14 @@ _global_script_classes=[ {
 "path": "res://addons/escoria-core/game/core-scripts/esc/commands/set_globals.gd"
 }, {
 "base": "ESCBaseCommand",
-"class": "SetHudVisibleCommand",
+"class": "SetGuiVisibleCommand",
 "language": "GDScript",
-"path": "res://addons/escoria-core/game/core-scripts/esc/commands/set_hud_visible.gd"
+"path": "res://addons/escoria-core/game/core-scripts/esc/commands/set_gui_visible.gd"
 }, {
 "base": "ESCBaseCommand",
 "class": "SetInteractiveCommand",
 "language": "GDScript",
 "path": "res://addons/escoria-core/game/core-scripts/esc/commands/set_interactive.gd"
-}, {
-"base": "ESCBaseCommand",
-"class": "SetSoundStateCommand",
-"language": "GDScript",
-"path": "res://addons/escoria-core/game/core-scripts/esc/commands/set_sound_state.gd"
 }, {
 "base": "ESCBaseCommand",
 "class": "SetSpeedCommand",
@@ -493,6 +513,11 @@ _global_script_classes=[ {
 "class": "StopCommand",
 "language": "GDScript",
 "path": "res://addons/escoria-core/game/core-scripts/esc/commands/stop.gd"
+}, {
+"base": "ESCBaseCommand",
+"class": "StopSndCommand",
+"language": "GDScript",
+"path": "res://addons/escoria-core/game/core-scripts/esc/commands/stop_snd.gd"
 }, {
 "base": "ESCBaseCommand",
 "class": "TeleportCommand",
@@ -541,6 +566,7 @@ _global_script_classes=[ {
 } ]
 _global_script_class_icons={
 "AcceptInputCommand": "",
+"AnimBlockCommand": "",
 "AnimCommand": "",
 "CameraPushCommand": "",
 "CameraSetLimitsCommand": "",
@@ -551,7 +577,6 @@ _global_script_class_icons={
 "CameraShiftCommand": "",
 "ChangeSceneCommand": "",
 "CustomCommand": "",
-"CutSceneCommand": "",
 "DebugCommand": "",
 "DecGlobalCommand": "",
 "ESCActionManager": "",
@@ -578,6 +603,7 @@ _global_script_class_icons={
 "ESCEvent": "",
 "ESCEventManager": "",
 "ESCExecution": "",
+"ESCExit": "res://addons/escoria-core/design/esc_exit.svg",
 "ESCGame": "",
 "ESCGlobalsManager": "",
 "ESCGroup": "",
@@ -590,6 +616,8 @@ _global_script_class_icons={
 "ESCItem": "res://addons/escoria-core/design/esc_item.svg",
 "ESCLocation": "res://addons/escoria-core/design/esc_location.svg",
 "ESCLogger": "",
+"ESCMigration": "",
+"ESCMigrationManager": "",
 "ESCMovable": "",
 "ESCMusicPlayer": "",
 "ESCObject": "",
@@ -597,6 +625,7 @@ _global_script_class_icons={
 "ESCPlayer": "res://addons/escoria-core/design/esc_player.svg",
 "ESCResourceCache": "",
 "ESCRoom": "res://addons/escoria-core/design/esc_room.svg",
+"ESCRoomManager": "",
 "ESCSaveGame": "",
 "ESCSaveManager": "",
 "ESCSaveSettings": "",
@@ -617,6 +646,7 @@ _global_script_class_icons={
 "InventoryRemoveCommand": "",
 "PlayInkCommand": "",
 "PlaySndCommand": "",
+"QueueEventCommand": "",
 "QueueResourceCommand": "",
 "RandGlobalCommand": "",
 "RepeatCommand": "",
@@ -627,9 +657,8 @@ _global_script_class_icons={
 "SetAnimationsCommand": "",
 "SetGlobalCommand": "",
 "SetGlobalsCommand": "",
-"SetHudVisibleCommand": "",
+"SetGuiVisibleCommand": "",
 "SetInteractiveCommand": "",
-"SetSoundStateCommand": "",
 "SetSpeedCommand": "",
 "SetStateCommand": "",
 "ShowMenuCommand": "",
@@ -637,6 +666,7 @@ _global_script_class_icons={
 "SlideCommand": "",
 "SpawnCommand": "",
 "StopCommand": "",
+"StopSndCommand": "",
 "TeleportCommand": "",
 "TeleportPosCommand": "",
 "TransitionCommand": "",
@@ -662,6 +692,7 @@ default_bus_layout="res://addons/escoria-core/default_bus_layout.tres"
 
 escoria="*res://addons/escoria-core/game/escoria.tscn"
 EscoriaInkBridge="*res://addons/escoria-ink-bridge/api/escoria_ink_bridge.gd"
+__InkRuntime="*res://addons/inkgd/runtime/static/ink_runtime.gd"
 
 [editor_plugins]
 
@@ -672,7 +703,7 @@ enabled=PoolStringArray( "res://addons/escoria-core/plugin.cfg", "res://addons/e
 main/game_version=""
 main/game_start_script="res://start_game.esc"
 main/force_quit=true
-main/command_directories=[ "res://addons/escoria-core/game/core-scripts/esc/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands" ]
+main/command_directories=[ "res://addons/escoria-core/game/core-scripts/esc/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands", "res://addons/escoria-ink-bridge/commands" ]
 main/text_lang="de_DE"
 main/voice_lang="de_DE"
 main/savegames_path="user://saves/"
@@ -684,7 +715,7 @@ debug/log_level="DEBUG"
 debug/enable_room_selector=false
 debug/room_selector_room_dir=""
 ui/tooltip_follows_mouse=true
-ui/default_dialog_type=""
+ui/default_dialog_type="floating"
 ui/game_scene="res://addons/escoria-ui-simplemouse/game.tscn"
 ui/items_autoregister_path="res://game/items/escitems/"
 ui/default_transition="curtain"
@@ -707,6 +738,8 @@ dialog_simple/max_time_to_disappear=1.0
 debug/log_file_path="user://"
 debug/crash_message="We're sorry, but the game crashed. Please send us the following files:
 "
+esc/command_paths=[ "res://addons/escoria-core/game/core-scripts/esc/commands" ]
+main/game_migration_path=""
 
 [physics]
 

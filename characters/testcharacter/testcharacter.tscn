@@ -23,7 +23,7 @@ extents = Vector2( 39.67, 25.4551 )
 [node name="ESCPlayer" type="Area2D"]
 pause_mode = 1
 script = ExtResource( 1 )
-global_id = "marjorie"
+global_id = "player"
 is_movable = true
 dialog_color = Color( 1, 1, 1, 1 )
 animations = SubResource( 2 )

@@ -1,12 +1,13 @@
-# `change_scene path [enable_automatic_transition=true] [run_events=true]`
+# `change_scene path [enable_automatic_transition] [run_events]`
 #
-# Loads a new scene, specified by "path". 
-# The `enable_automatic_transition` is a boolean (default true) can be set 
-# to false to disable automatic transitions between scenes, to allow you
-# to control your transitions manually using the `transition` command.
-# The `run_events` variable is a boolean (default true) which you never want 
-# to set manually! It's there only to benefit save games, so they don't
-# conflict with the scene's events.
+# Switches the current scene to another scene
+#
+# **Parameters**
+#
+# - *path*: Path of the new scene
+# - *enable_automatic_transition*: Automatically transition to the new scene 
+#   (default: `true`)
+# - *run_events*: Run the standard ESC events of the new scene (default: `true`)
 #
 # @ESC
 extends ESCBaseCommand
@@ -59,29 +60,51 @@ func run(command_params: Array) -> int:
 	
 	var exited_previous_room = false
 	
+	# If auto transition is enabled, try to determine whether we just exited a 
+	# room previously, so that we must play the auto transition out or not.
+	# This must happen if ESC_LAST_SCENE is set, or if we're running an 
+	# exit_scene event. Also room selector actions require the transition.
 	if command_params[1] \
-			and escoria.event_manager._running_event.name \
-			in ["exit_scene", "room_selector"]:
+			and (
+				not escoria.globals_manager.get_global( \
+					escoria.room_manager.GLOBAL_LAST_SCENE).empty()
+				or (
+					escoria.event_manager.get_running_event("_front") != null \
+					and escoria.event_manager.get_running_event("_front").name \
+						in ["newgame", "exit_scene", "room_selector"]
+						and escoria.globals_manager.get_global(
+							escoria.room_manager.GLOBAL_LAST_SCENE
+						).empty()
+					)
+				):
 		exited_previous_room = true
-		escoria.main.scene_transition.transition(
+		var transition_id = escoria.main.scene_transition.transition(
 			"", 
 			ESCTransitionPlayer.TRANSITION_MODE.OUT
 		)
+		escoria.logger.debug(
+			"Awaiting transition %s (out) to be finished." % str(transition_id)
+		)
 		yield(escoria.main.scene_transition, "transition_done")
-		
-	# If BYPASS_LAST_SCENE is false, set ESC_LAST_SCENE = current room id
-	if escoria.main.current_scene \
-			and not escoria.globals_manager.get_global("BYPASS_LAST_SCENE"):
+	
+		# Hide main and pause menus
+		escoria.game_scene.hide_main_menu()
+		escoria.game_scene.unpause_game()
+
+	# If FORCE_LAST_SCENE_NULL is true, force ESC_LAST_SCENE to empty
+	if escoria.globals_manager.get_global( \
+		escoria.room_manager.GLOBAL_FORCE_LAST_SCENE_NULL):
+
 		escoria.globals_manager.set_global(
-			"ESC_LAST_SCENE", 
-			escoria.main.current_scene.global_id, 
+			escoria.room_manager.GLOBAL_LAST_SCENE, 
+			null, 
 			true
 		)
-	
-	if escoria.globals_manager.get_global("BYPASS_LAST_SCENE"):
+	elif escoria.main.current_scene:
+		# If FORCE_LAST_SCENE_NULL is false, set ESC_LAST_SCENE = current roomid
 		escoria.globals_manager.set_global(
-			"ESC_LAST_SCENE", 
-			null, 
+			escoria.room_manager.GLOBAL_LAST_SCENE, 
+			escoria.main.current_scene.global_id, 
 			true
 		)
 	
@@ -110,7 +133,8 @@ func run(command_params: Array) -> int:
 	var room_scene = res_room.instance()
 	if room_scene:
 		if command_params[1] \
-				and escoria.event_manager._running_event.name \
+				and escoria.event_manager.get_running_event("_front") != null \
+				and escoria.event_manager.get_running_event("_front").name \
 				== "room_selector":
 			room_scene.enabled_automatic_transitions = true
 		else:
@@ -129,6 +153,14 @@ func run(command_params: Array) -> int:
 		room_scene.game = escoria.game_scene
 		escoria.main.set_scene(room_scene)
 		
+		# We know the scene has been loaded. Make its global ID available for
+		# use by ESC script.
+		escoria.globals_manager.set_global(
+			escoria.room_manager.GLOBAL_CURRENT_SCENE, 
+			room_scene.global_id, 
+			true
+		)
+
 		# Clear queued resources
 		escoria.resource_cache.clear()
 		

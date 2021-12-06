@@ -318,6 +318,8 @@ func update_terrain(on_event_finished_name = null) -> void:
 		return
 	if parent.get("dont_apply_terrain_scaling"):
 		return
+	if not parent.is_inside_tree():
+		return
 		
 	var pos = parent.global_position
 	if pos.y <= VisualServer.CANVAS_ITEM_Z_MAX:
@@ -370,7 +372,7 @@ func _get_dir_deg(deg: int, animations: ESCAnimationResource) -> int:
 	# It's an error to have the animations misconfigured
 	if dir == -1:
 		escoria.logger.report_errors(
-			"escitem.gd:_get_dir_deg()",
+			"esc_movable.gd:_get_dir_deg()",
 			["No direction found for " + str(deg)]
 		)
 	
@@ -390,53 +392,13 @@ func _is_angle_in_interval(
 		angle: float, 
 		direction_angle: ESCDirectionAngle
 ) -> bool:
-	angle = wrapi(angle, 0, 360)
-	if angle == 0:
-		angle = 360
-	var start_angle = wrapi(direction_angle.angle_start, 0, 360)
-	var angle_area = direction_angle.angle_size
-	var end_angle = wrapi(direction_angle.angle_start + angle_area, 0, 360) 
+	var start_angle = direction_angle.angle_start
+	var end_angle = direction_angle.angle_start + direction_angle.angle_size
 	
-	# First we want to test if angle is in upper part of the clock.
-	# If it is, we add 180 to all angles so that we test in lower part of the
-	# clock, so we avoid messing with calculations wrapping around 360° and 0°.
-	if _angle_is_between_270_to_90(angle):
-		return _angle_is_between(
-				angle + 180, 
-				start_angle + 180,
-				start_angle + angle_area + 180
-			)
-	else:
-		return _angle_is_between(angle, start_angle, end_angle)
+	if end_angle > 360 and angle < start_angle:
+		angle += 360
 	
-
-# Returns true if angle is in upper part of trigonometric circle
-# ie. between 0 and PI
-# ie. between 270° and 90°
-# ie. between 9 o'clock and 3 o'clock
-#
-# #### Parameters
-#
-# - angle: the angle in degrees
-func _angle_is_between_270_to_90(angle: float) -> bool:
-	return (angle >= 270 and angle <= 360) or (angle >= 0 and angle <= 90)
-
-
-# Returns true if angle is between start angle and end angle. All angle values 
-# will clamped between 0 and 360 degrees.
-#
-# #### Parameters
-#
-# - angle: the angle in degrees
-# - start_angle: the start value of the angle interval
-# - end_angle: the end value of the angle interval
-func _angle_is_between(
-	angle: float, 
-	start_angle: float, 
-	end_angle: float
-) -> bool:
-	return wrapi(angle, 0, 360) >= wrapi(start_angle, 0, 360) \
-		and wrapi(angle, 0, 360) <= wrapi(end_angle, 0, 360)
+	return (start_angle <= angle and angle <= end_angle)
 
 
 # Sets character's angle and plays according animation.

@@ -4,6 +4,7 @@ extends Node
 class_name ESCAnimationPlayer
 
 
+# Emitted when the animation finsihed playing
 signal animation_finished(name)
 
 
@@ -19,6 +20,9 @@ var _animated_sprite: AnimatedSprite
 # Wether the player node is of type AnimationPlayer (just for convenience)
 var _is_animation_player: bool = false
 
+# Currently running animation
+var _current_animation: String = ""
+
 
 # Create a new animation player
 #
@@ -32,6 +36,23 @@ func _init(node: Node):
 		_animation_player = node
 	else:
 		_animated_sprite = node
+	node.add_child(self)
+
+
+# Connect animation signals
+func _ready() -> void:
+	if _is_animation_player:
+		_player_node.connect(
+			"animation_finished",
+			self,
+			"_on_animation_finished"
+		)
+	else:
+		_player_node.connect(
+			"animation_finished",
+			self,
+			"_on_animation_finished_animated_sprite"
+		)
 
 
 # Return the currently playing animation
@@ -70,22 +91,11 @@ func stop():
 # - name: The animation name to play
 # - backwards: Play backwards
 func play(name: String, backwards: bool = false):
-	if _player_node.is_connected(
-		"animation_finished",
-		self,
-		"_on_animation_finished"
-	):
-		_player_node.disconnect(
-			"animation_finished",
-		self,
-		"_on_animation_finished"
-		)
-	_player_node.connect(
-		"animation_finished",
-		self,
-		"_on_animation_finished",
-		[name]
-	)
+	if _is_animation_player and _animation_player.current_animation != "":
+		_animation_player.seek(0)
+	elif not _is_animation_player:
+		_animated_sprite.frame = 0
+	_current_animation = name
 	if backwards and _is_animation_player:
 		_animation_player.play_backwards(name)
 	elif backwards:
@@ -130,13 +140,18 @@ func seek_end(name: String):
 		_animated_sprite.frame = _animated_sprite.frames.get_frame_count(name)
 
 
-# Transport the animation_finished signal
+# Get the length of the specified animation
 #
 # #### Parameters
 #
-# - name: Name of the animation played
-func _on_animation_finished(name: String):
-	emit_signal("animation_finished", name)
+# - name: Name of the animation
+# **Returns** The length of the animation in seconds
+func get_length(name: String) -> float:
+	if _is_animation_player:
+		return _animation_player.get_animation(name).length
+	else:
+		return _animated_sprite.frames.get_frame_count(name) - 1 * \
+				_animated_sprite.frames.get_animation_speed(name)
 
 
 # Return true if the ESCAnimationPlayer node is valid, ie. it has a valid player
@@ -145,3 +160,21 @@ func _on_animation_finished(name: String):
 # else false**
 func is_valid() -> bool:
 	return _player_node != null and _player_node is Node
+
+
+# Transport the animation_finished signal
+#
+# #### Parameters
+#
+# - name: Name of the animation played
+func _on_animation_finished(name: String):
+	if _is_animation_player and not _animation_player.get_animation(name).loop:
+		_animation_player.stop()
+	elif not _animated_sprite.frames.get_animation_loop(name):
+		_animated_sprite.stop()
+	emit_signal("animation_finished", name)
+
+
+# Special signal handler for animated sprites
+func _on_animation_finished_animated_sprite():
+	_on_animation_finished(_current_animation)

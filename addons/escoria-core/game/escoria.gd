@@ -1,8 +1,15 @@
 # The escoria main script
+tool
 extends Node
 
 # Signal sent when pause menu has to be displayed
 signal request_pause_menu
+
+# Signal sent when Escoria is paused
+signal paused
+
+# Signal sent when Escoria is resumed from pause
+signal resumed
 
 
 # Escoria version number
@@ -39,6 +46,9 @@ var event_manager: ESCEventManager
 
 # ESC globals registry instance
 var globals_manager: ESCGlobalsManager
+
+# ESC room manager instance
+var room_manager: ESCRoomManager
 
 # ESC object manager instance
 var object_manager: ESCObjectManager
@@ -106,6 +116,7 @@ func _init():
 	self.save_manager = ESCSaveManager.new()
 	self.inputs_manager = ESCInputsManager.new()
 	self.controller = ESCController.new()
+	self.room_manager = ESCRoomManager.new()
 	
 	settings = ESCSaveSettings.new()
 	
@@ -117,12 +128,13 @@ func _init():
 		self.game_scene = resource_cache.get_resource(
 			ProjectSettings.get_setting("escoria/ui/game_scene")
 		).instance()
-		
+	
 
 # Load settings
 func _ready():
 	settings = save_manager.load_settings()
 	apply_settings(settings)
+	room_manager.register_reserved_globals()
 	inputs_manager.register_core()
 	if ProjectSettings.get_setting("escoria/main/game_start_script").empty():
 		logger.report_errors("escoria.gd", 
@@ -310,18 +322,16 @@ func _input(event):
 	if event.is_action_pressed("ui_cancel"):
 		emit_signal("request_pause_menu")
 	
-	if ProjectSettings.get_setting("escoria/ui/tooltip_follows_mouse"):
-		if escoria.main.current_scene and escoria.main.current_scene.game:
-			if event is InputEventMouseMotion:
-				escoria.main.current_scene.game. \
-					update_tooltip_following_mouse_position(event.position)
-
 
 # Pauses or unpause the game
 #
 # #### Parameters
 # - p_paused: if true, pauses the game. If false, unpauses the game.
 func set_game_paused(p_paused: bool):
+	if p_paused:
+		emit_signal("paused")
+	else:
+		emit_signal("resumed")
 	get_tree().paused = p_paused
 
 
@@ -349,6 +359,110 @@ func run_event_from_script(script: ESCScript, event_name: String):
 			[]
 		)
 		return
+		
+
+# Register a new project setting if it hasn't been defined already
+#
+# #### Parameters
+#
+# - name: Name of the project setting
+# - default: Default value
+# - info: Property info for the setting
+func register_setting(name: String, default, info: Dictionary):
+	if not ProjectSettings.has_setting(name):
+		ProjectSettings.set_setting(
+			name,
+			default
+		)
+		info.name = name
+		ProjectSettings.add_property_info(info)
+		
+
+# Register a user interface. This should be called in a deferred way
+# from the addon's _enter_tree.
+#
+# #### Parameters
+# - game_scene: Path to the game scene extending ESCGame
+func register_ui(game_scene: String):
+	if not ProjectSettings.get_setting("escoria/ui/game_scene") in [
+		"",
+		game_scene
+	]:
+		logger.report_errors(
+			"escoria.gd:register_ui()",
+			[
+				"Can't register user interface because %s is registered" % \
+						ProjectSettings.get_setting("escoria/ui/game_scene")
+			]
+		)
+	ProjectSettings.set_setting(
+		"escoria/ui/game_scene",
+		game_scene
+	)
+	
+
+# Deregister a user interface
+#
+# #### Parameters
+# - game_scene: Path to the game scene extending ESCGame
+func deregister_ui(game_scene: String):
+	if ProjectSettings.get_setting("escoria/ui/game_scene") != game_scene:
+		logger.report_errors(
+			"escoria.gd:deregister_ui()",
+			[
+				(
+					"Can't deregister user interface %s because it " +
+					"is not registered."
+				) % ProjectSettings.get_setting("escoria/ui/game_scene")
+			]
+		)
+	ProjectSettings.set_setting(
+		"escoria/ui/game_scene",
+		""
+	)
+	
+
+# Register a dialog manager addon. This should be called in a deferred way
+# from the addon's _enter_tree.
+#
+# #### Parameters
+# - manager_class: Path to the manager class script
+func register_dialog_manager(manager_class: String):
+	var dialog_managers: Array = ProjectSettings.get_setting(
+		"escoria/ui/dialog_managers"
+	)
+	if manager_class in dialog_managers:
+		return
+	dialog_managers.push_back(manager_class)
+	ProjectSettings.set_setting(
+		"escoria/ui/dialog_managers",
+		dialog_managers
+	)
+	
+
+# Deregister a dialog manager addon
+#
+# #### Parameters
+# - manager_class: Path to the manager class script
+func deregister_dialog_manager(manager_class: String):
+	var dialog_managers: Array = ProjectSettings.get_setting(
+		"escoria/ui/dialog_managers"
+	)
+	if not manager_class in dialog_managers:
+		logger.report_warnings(
+			"escoria.gd:deregister_dialog_manager()",
+			[
+				"Dialog manager %s is not registered" % manager_class
+			]
+		)
+		return
+	
+	dialog_managers.erase(manager_class)
+	
+	ProjectSettings.set_setting(
+		"escoria/ui/dialog_managers",
+		dialog_managers
+	)
 
 
 # Function called to quit the game.

@@ -6,6 +6,7 @@ signal story_ended
 
 
 const REGEX_TEXT="(?<character>[a-z]+):\\s*(?<text>.+)"
+const REGEX_COMMAND=">>\\s*(?<command>.+)"
 
 
 var InkRuntime = load("res://addons/inkgd/runtime.gd")
@@ -14,12 +15,12 @@ var Story = load("res://addons/inkgd/runtime/story.gd")
 
 var _current_story = null
 
-var _regex_text: RegEx = null
-
+var _regex_text: RegEx = RegEx.new()
+var _regex_command: RegEx = RegEx.new()
 
 func _ready() -> void:
-	_regex_text = RegEx.new()
 	_regex_text.compile(REGEX_TEXT)
+	_regex_command.compile(REGEX_COMMAND)
 	call_deferred("_initializeInk")
 	
 
@@ -34,6 +35,25 @@ func is_story_valid(ink_file: String) -> bool:
 
 func run_story(ink_file: String):
 	_current_story = _get_story(ink_file)
+	
+	for variable in _current_story.variables_state.enumerate():
+		if not escoria.globals_manager.has(variable):
+			escoria.logger.report_errors(
+				"escoria_ink_bridge.gd:run_story",
+				[
+					"Ink variable %s not found in the Escoria globals." % [
+						variable
+					]
+				]
+			)
+		_current_story.observe_variable(variable, self, "_observe_variable")
+		_current_story.variables_state.set(
+			variable,
+			escoria.globals_manager.get_global(variable)
+		)
+		
+	_current_story.bind_external_function("runEsc", self, "_run_esc")
+
 	_continue_story()
 
 
@@ -59,12 +79,28 @@ func _continue_story():
 	if _current_story.can_continue:
 		var text = _current_story.continue()
 		var text_info = _regex_text.search(text)
+		var command_info = _regex_command.search(text)
 		if text_info:
+			if _current_story.current_tags.size() == 0:
+				escoria.logger.report_errors(
+					"escoria_ink_bridge.gd:_continue_story",
+					[
+						(
+							"Current line of text is missing translation key " +
+							"as the first tag: %s"
+						) % text
+						
+					]
+				)
+			var translation_key = _current_story.current_tags[0]
 			if escoria.object_manager.has(text_info.get_string("character")):
 				escoria.dialog_player.say(
 					text_info.get_string("character"), 
 					"floating", 
-					text_info.get_string("text")
+					'%s:"%s"' % [
+						translation_key,
+						text_info.get_string("text")
+					]
 				)
 			else:
 				escoria.logger.report_errors(
@@ -75,6 +111,8 @@ func _continue_story():
 						]
 					]
 				)	
+		elif command_info:
+			_run_esc(command_info.get_string("command"))
 		else:
 			escoria.logger.report_errors(
 				"escoria_ink_bridge.gd:_continue_story",
@@ -105,3 +143,41 @@ func _continue_story():
 		emit_signal("story_ended")
 
 
+# Update Escoria's globals whenever a variable in ink is changed
+#
+# #### Parameters
+# - variable_name: Name of the variable
+# - value: The new value
+func _observe_variable(variable_name: String, value):
+	escoria.globals_manager.set_global(variable_name, value)
+
+
+func _run_esc(command: String):
+	var event = escoria.esc_compiler.compile([
+		":run",
+		command
+	])
+	escoria.event_manager.queue_background_event(
+		"_ink",
+		event.events["run"]
+	)
+	var event_return = yield(escoria.event_manager, "background_event_finished")
+	
+	while event_return[2] != "_ink" and event_return[1] != "run":
+		event_return = yield(
+			escoria.event_manager, 
+			"background_event_finished"
+		)
+	
+	if event_return[0] != ESCExecution.RC_OK:
+		escoria.logger.report_errors(
+			"escoria_ink_bridge:_run_esc",
+			[
+				"Command failed to run: (%d )%s" % [
+					event_return[0],
+					command
+				]
+			]
+		)
+	
+	_continue_story()
