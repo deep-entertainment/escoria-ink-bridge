@@ -38,13 +38,9 @@ func run_story(ink_file: String):
 	
 	for variable in _current_story.variables_state.enumerate():
 		if not escoria.globals_manager.has(variable):
-			escoria.logger.report_errors(
-				"escoria_ink_bridge.gd:run_story",
-				[
-					"Ink variable %s not found in the Escoria globals." % [
-						variable
-					]
-				]
+			escoria.logger.error(
+				self,
+				"Ink variable %s not found in the Escoria globals." % variable
 			)
 		_current_story.observe_variable(variable, self, "_observe_variable")
 		_current_story.variables_state.set(
@@ -81,18 +77,9 @@ func _continue_story():
 		var text_info = _regex_text.search(text)
 		var command_info = _regex_command.search(text)
 		if text_info:
-			if _current_story.current_tags.size() == 0:
-				escoria.logger.report_errors(
-					"escoria_ink_bridge.gd:_continue_story",
-					[
-						(
-							"Current line of text is missing translation key " +
-							"as the first tag: %s"
-						) % text
-						
-					]
-				)
-			var translation_key = _current_story.current_tags[0]
+			# Set a dummy translation key if no translation tag is set
+			var translation_key = "default" if _current_story.current_tags.size() == 0 else _current_story.current_tags[0]
+
 			if escoria.object_manager.has(text_info.get_string("character")):
 				escoria.dialog_player.say(
 					text_info.get_string("character"), 
@@ -103,25 +90,19 @@ func _continue_story():
 					]
 				)
 			else:
-				escoria.logger.report_errors(
-					"escoria_ink_bridge.gd:_continue_story",
-					[
-						"Character %s not found" % [ 
-							text_info.get_string("character")
-						]
-					]
-				)	
+				escoria.logger.error(
+					self,
+					"Character %s not found" % 
+							text_info.get_string("character")		
+				)
+				
 		elif command_info:
 			_run_esc(command_info.get_string("command"))
 		else:
-			escoria.logger.report_errors(
-				"escoria_ink_bridge.gd:_continue_story",
-				[
-					"Text doesn't match the form <character name>:<text>: %s" \
-					% [
-						text
-					]
-				]
+			escoria.logger.error(
+				self,
+				"Text doesn't match the form <character name>:<text>: %s" \
+				% text
 			)
 		yield(escoria.dialog_player, "say_finished")
 		_continue_story()
@@ -170,14 +151,12 @@ func _run_esc(command: String):
 		)
 	
 	if event_return[0] != ESCExecution.RC_OK:
-		escoria.logger.report_errors(
-			"escoria_ink_bridge:_run_esc",
-			[
-				"Command failed to run: (%d )%s" % [
+		escoria.logger.error(
+			self,
+			"Command failed to run: (%d )%s" % [
 					event_return[0],
 					command
 				]
-			]
 		)
 	
 	_continue_story()

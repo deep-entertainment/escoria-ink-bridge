@@ -12,8 +12,11 @@ is not affiliated with Inkle Studios at all.
 Please use the [deep entertainment issue tracker](https://github.com/deep-entertainment/issues/issues)
 if you encounter any problems or require features.
 
-This addon uses and bundles [inkgd](https://github.com/ephread/inkgd), which
-is a pure GDScript implementation of ink.
+# Requirements
+
+* [escoria-core](http://github.com/godot-escoria/escoria-core.git), Escoria Core
+* [inkgd](https://github.com/ephread/inkgd), a pure GDScript implementation of ink.
+* A dialog manager and UI for Escoria
 
 ## Installation
 
@@ -39,9 +42,8 @@ The addon uses the following conventions:
 
 - Each line of text starts with the global id of the speaking characters,
   followed by a `:` before the actual text starts
-- Each line of text has at least one 
-  [tag](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#tags) 
-  for the [translation/voice key](https://docs.escoria-framework.org/translation)
+- The first [tag](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#tags) 
+  in each line of text will be used for the [translation/voice key](https://docs.escoria-framework.org/translation)
 - If a line of text starts with two arrows `>>`, the following is interpreted
   as an [ESC command](https://docs.escoria-framework.org/esc-reference)
   and run directly
