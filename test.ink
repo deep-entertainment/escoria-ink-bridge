@@ -1,5 +1,8 @@
 VAR current_name = ""
 
+-> dialog1
+
+=== dialog1 ===
 player: Hello, { current_name } # HELLO1
 npc: Hey! That's not my name! # HELLO2
 player: It isn't? # HELLO3
@@ -18,3 +21,9 @@ player: What a weird name. # HELLO7
 -
 
 >> say player HELLO8:"Oooo wiieee!"
+->DONE
+
+=== dialog2 ===
+npc: This is another dialog!
+npc: I'm skipping directly there this time.
+-> DONE

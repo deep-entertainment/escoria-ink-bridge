@@ -10,7 +10,7 @@ class_name PlayInkCommand
 func configure() -> ESCCommandArgumentDescriptor:
 	return ESCCommandArgumentDescriptor.new(
 		1,
-		[TYPE_STRING],
+		[TYPE_STRING, TYPE_STRING],
 		[null]
 	)
 	
@@ -36,7 +36,10 @@ func validate(arguments: Array):
 
 
 func run(arguments: Array) -> int:
-	EscoriaInkBridge.run_story(arguments[0])
+	var story = arguments[0]
+	var knot = arguments[1] if arguments.size() > 1 else ""
+	EscoriaInkBridge.run_story(story, knot)
+		
 	yield(EscoriaInkBridge, "story_ended")
 	return ESCExecution.RC_OK
 

@@ -1,0 +1,3 @@
+:use | TK
+
+play_ink res://test.ink.json dialog2
