@@ -22,9 +22,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 script = ExtResource( 3 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="ESCItem" type="Area2D" parent="."]
 pause_mode = 1
@@ -34,6 +31,7 @@ esc_script = "res://rooms/testroom/button.esc"
 player_orients_on_arrival = false
 tooltip_name = "button"
 default_action = "use"
+combine_when_selected_action_is_in = [  ]
 dialog_color = Color( 1, 1, 1, 1 )
 animations = null
 
