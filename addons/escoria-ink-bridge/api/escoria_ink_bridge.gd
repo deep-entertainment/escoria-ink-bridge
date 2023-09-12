@@ -33,7 +33,7 @@ func is_story_valid(ink_file: String) -> bool:
 	return not _get_story(ink_file) == null
 
 
-func run_story(ink_file: String):
+func run_story(ink_file: String, knot := ""):
 	_current_story = _get_story(ink_file)
 	
 	for variable in _current_story.variables_state.enumerate():
@@ -50,6 +50,10 @@ func run_story(ink_file: String):
 		
 	_current_story.bind_external_function("runEsc", self, "_run_esc")
 
+	# Jump to the given knot
+	if knot != "":
+		_current_story.choose_path_string(knot)
+		
 	_continue_story()
 
 

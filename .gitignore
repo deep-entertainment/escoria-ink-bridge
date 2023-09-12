@@ -9,6 +9,9 @@ export_presets.cfg
 # Imported translations (automatically generated from CSV files)
 *.translation
 
+# Ignore generated script templates
+script_templates
+
 # Mono-specific ignores
 .mono/
 data_*/

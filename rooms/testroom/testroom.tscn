@@ -29,7 +29,7 @@ script = ExtResource( 2 )
 global_id = "button"
 esc_script = "res://rooms/testroom/button.esc"
 player_orients_on_arrival = false
-tooltip_name = "button"
+tooltip_name = "Run Story From Top"
 default_action = "use"
 combine_when_selected_action_is_in = [  ]
 dialog_color = Color( 1, 1, 1, 1 )
@@ -39,6 +39,26 @@ animations = null
 polygon = PoolVector2Array( 176.985, 98.8231, 239.993, 98.8231, 246.076, 142.277, 178.288, 140.539 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ESCItem"]
+position = Vector2( 215.531, 120.802 )
+shape = SubResource( 1 )
+
+[node name="ESCItem2" type="Area2D" parent="."]
+pause_mode = 1
+position = Vector2( 0, 69 )
+script = ExtResource( 2 )
+global_id = "button2"
+esc_script = "res://rooms/testroom/button2.esc"
+player_orients_on_arrival = false
+tooltip_name = "Run Story From Knot"
+default_action = "use"
+combine_when_selected_action_is_in = [  ]
+dialog_color = Color( 1, 1, 1, 1 )
+animations = null
+
+[node name="Polygon2D" type="Polygon2D" parent="ESCItem2"]
+polygon = PoolVector2Array( 176.985, 98.8231, 239.993, 98.8231, 246.076, 142.277, 178.288, 140.539 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ESCItem2"]
 position = Vector2( 215.531, 120.802 )
 shape = SubResource( 1 )
 
