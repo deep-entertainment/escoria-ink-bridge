@@ -15,13 +15,14 @@ if you encounter any problems or require features.
 # Requirements
 
 * [Godot 3.5](https://godotengine.org/)
+* [inkgd 0.5.0](https://github.com/ephread/inkgd)
+* [ink 1.1.1](https://github.com/inkle/ink)
 * [escoria-core](http://github.com/godot-escoria/escoria-core.git), Escoria 4.0.0a
-* [inkgd](https://github.com/ephread/inkgd), InkGD 0.5.0
 * Any [UI](https://github.com/godot-escoria/escoria-ui-simplemouse/) and [dialog manager](https://github.com/godot-escoria/escoria-dialog-simple) for Escoria (testing using the defaults)
 
 ## Installation
 
-Clone the repo and copy the plugin (from the addons folder) into a Godot project. The sample project can be used for testing.
+Download a zip of the repo and copy the plugin (from the addons folder) into a Godot project. The sample project can be used for testing.
 
 ## Using
 
@@ -48,3 +49,7 @@ The addon uses the following conventions:
   as an [ESC command](https://docs.escoria-framework.org/esc-reference)
   and run directly
 - Ink [global variables](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#1-global-variables) are synchronized with [Escoria's globals](https://docs.escoria-framework.org/globals).
+
+## Contributing
+
+Clone the repo. Make sure changes work in the test scenes.
