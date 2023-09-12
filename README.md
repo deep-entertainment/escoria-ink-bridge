@@ -14,14 +14,14 @@ if you encounter any problems or require features.
 
 # Requirements
 
-* [escoria-core](http://github.com/godot-escoria/escoria-core.git), Escoria Core
-* [inkgd](https://github.com/ephread/inkgd), a pure GDScript implementation of ink.
-* A dialog manager and UI for Escoria
+* [Godot 3.5](https://godotengine.org/)
+* [escoria-core](http://github.com/godot-escoria/escoria-core.git), Escoria 4.0.0a
+* [inkgd](https://github.com/ephread/inkgd), InkGD 0.5.0
+* Any [UI](https://github.com/godot-escoria/escoria-ui-simplemouse/) and [dialog manager](https://github.com/godot-escoria/escoria-dialog-simple) for Escoria (testing using the defaults)
 
 ## Installation
 
-Install the addon using the Godot asset library and activate it in the
-project settings afterwards.
+Clone the repo and copy the plugin (from the addons folder) into a Godot project. The sample project can be used for testing.
 
 ## Using
 
