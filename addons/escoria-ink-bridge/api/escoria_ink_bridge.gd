@@ -80,7 +80,9 @@ func _continue_story():
 		var text = _current_story.continue()
 		var text_info = _regex_text.search(text)
 		var command_info = _regex_command.search(text)
-		if text_info:
+		if command_info:
+			_run_esc(command_info.get_string("command"))
+		elif text_info:
 			# Set a dummy translation key if no translation tag is set
 			var translation_key = "default" if _current_story.current_tags.size() == 0 else _current_story.current_tags[0]
 
@@ -98,10 +100,7 @@ func _continue_story():
 					self,
 					"Character %s not found" % 
 							text_info.get_string("character")		
-				)
-				
-		elif command_info:
-			_run_esc(command_info.get_string("command"))
+				)				
 		else:
 			escoria.logger.error(
 				self,

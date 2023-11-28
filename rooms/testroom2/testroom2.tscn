@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://addons/escoria-core/game/core-scripts/esc_background.gd" type="Script" id=1]
+[ext_resource path="res://addons/escoria-core/game/core-scripts/esc_room.gd" type="Script" id=2]
+[ext_resource path="res://characters/testcharacter/testcharacter.tscn" type="PackedScene" id=3]
+
+[node name="ESCRoom" type="Node2D"]
+script = ExtResource( 2 )
+global_id = "testroom2"
+player_scene = ExtResource( 3 )
+camera_limits = [ Rect2( 0, 0, 1024, 600 ) ]
+
+[node name="ESCBackground" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource( 1 )
