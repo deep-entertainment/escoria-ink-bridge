@@ -26,4 +26,5 @@ player: What a weird name. # HELLO7
 === dialog2 ===
 npc: This is another dialog!
 npc: I'm skipping directly there this time.
+>> change_scene "res:\/\/rooms/testroom2/testroom2.tscn"
 -> DONE
